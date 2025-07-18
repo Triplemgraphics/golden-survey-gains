@@ -8,33 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Golden & White Survey Platform Design System */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Golden color palette */
+    --primary: 51 100% 50%;          /* Gold #FFD700 */
+    --primary-foreground: 0 0% 100%;  /* White text on gold */
+    --primary-light: 48 100% 67%;     /* Lighter gold */
+    --primary-glow: 45 100% 85%;      /* Very light gold glow */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 97%;            /* Off-white */
+    --secondary-foreground: 0 0% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;     /* Soft gray #666666 */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 48 100% 67%;            /* Light gold accent */
+    --accent-foreground: 0 0% 20%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 93%;
+    --input: 0 0% 97%;
+    --ring: 51 100% 50%;              /* Gold ring */
+
+    /* Golden gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(51 100% 50%), hsl(48 100% 67%));
+    --gradient-hero: linear-gradient(135deg, hsl(51 100% 50%) 0%, hsl(48 100% 67%) 50%, hsl(45 100% 85%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(45 100% 98%) 100%);
+    
+    /* Golden shadows and effects */
+    --shadow-golden: 0 10px 30px -10px hsl(51 100% 50% / 0.3);
+    --shadow-glow: 0 0 40px hsl(45 100% 85% / 0.6);
+    --shadow-elegant: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.5rem;
 
