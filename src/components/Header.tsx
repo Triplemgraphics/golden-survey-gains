@@ -24,7 +24,7 @@ const Header = () => {
             </div>
             <div>
               <div className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
-                BunnySurveys
+                Survey Africa
               </div>
               <div className="text-xs text-muted-foreground -mt-1">
                 Earn. Share. Prosper.
@@ -48,11 +48,11 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" className="font-medium">
-              Sign In
+            <Button variant="ghost" className="font-medium" asChild>
+              <a href="/auth">Sign In</a>
             </Button>
-            <Button variant="default" className="font-medium">
-              Get Started
+            <Button variant="default" className="font-medium" asChild>
+              <a href="/auth">Get Started</a>
             </Button>
           </div>
 
@@ -84,11 +84,11 @@ const Header = () => {
                 </a>
               ))}
               <div className="pt-4 border-t border-border space-y-3">
-                <Button variant="ghost" className="w-full justify-start">
-                  Sign In
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <a href="/auth">Sign In</a>
                 </Button>
-                <Button variant="default" className="w-full">
-                  Get Started
+                <Button variant="default" className="w-full" asChild>
+                  <a href="/auth">Get Started</a>
                 </Button>
               </div>
             </nav>

@@ -15,7 +15,7 @@ const Testimonials = () => {
       name: "David Kimani",
       location: "Mombasa", 
       rating: 5,
-      text: "BunnySurveys changed my life. I can now pay for my daily expenses just by sharing my opinions during lunch breaks.",
+      text: "Survey Africa changed my life. I can now pay for my daily expenses just by sharing my opinions during lunch breaks.",
       earnings: "Ksh 12,500+ earned",
       avatar: "DK"
     },
@@ -64,7 +64,7 @@ const Testimonials = () => {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of satisfied members who are already earning with BunnySurveys. 
+            Join thousands of satisfied members who are already earning with Survey Africa. 
             Real people, real earnings, real reviews.
           </p>
         </div>
@@ -75,7 +75,7 @@ const Testimonials = () => {
             <CardContent className="p-8 text-center">
               <Quote className="w-12 h-12 mx-auto mb-6 opacity-80" />
               <blockquote className="text-2xl md:text-3xl font-medium mb-6 leading-relaxed">
-                "I've tried many survey platforms, but BunnySurveys is by far the best. 
+                "I've tried many survey platforms, but Survey Africa is by far the best. 
                 The payouts are fast, surveys are relevant, and I've earned enough to start my small business!"
               </blockquote>
               <div className="flex items-center justify-center gap-4">
