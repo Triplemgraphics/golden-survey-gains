@@ -26,7 +26,7 @@ const Contact = () => {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions about earning with BunnySurveys? Need support with your account? 
+            Have questions about earning with Survey Africa? Need support with your account? 
             We're here to help you maximize your earning potential!
           </p>
         </div>
@@ -108,11 +108,11 @@ const Contact = () => {
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all duration-300">
                       <Mail className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Email Support</h3>
-                      <p className="text-muted-foreground">support@bunnysurveys.co.ke</p>
-                      <p className="text-sm text-muted-foreground">Response within 2 hours</p>
-                    </div>
+            <div>
+              <h3 className="font-semibold mb-1">Email Support</h3>
+              <p className="text-muted-foreground">triplemgraphics092@gmail.com</p>
+              <p className="text-sm text-muted-foreground">Response within 2 hours</p>
+            </div>
                   </div>
                 </CardContent>
               </Card>
@@ -123,11 +123,11 @@ const Contact = () => {
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all duration-300">
                       <Phone className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Phone Support</h3>
-                      <p className="text-muted-foreground">+254 700 123 456</p>
-                      <p className="text-sm text-muted-foreground">Mon-Fri 8AM-6PM EAT</p>
-                    </div>
+            <div>
+              <h3 className="font-semibold mb-1">Phone Support</h3>
+              <p className="text-muted-foreground">+254 754 868 688</p>
+              <p className="text-sm text-muted-foreground">Mon-Fri 8AM-6PM EAT</p>
+            </div>
                   </div>
                 </CardContent>
               </Card>
