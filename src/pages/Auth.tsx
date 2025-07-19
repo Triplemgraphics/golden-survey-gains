@@ -32,12 +32,38 @@ const Auth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate("/dashboard");
+        // Check if this is a new signup by checking if they have a test completion record
+        setTimeout(() => {
+          checkNewUser(session.user.id);
+        }, 100);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkNewUser = async (userId: string) => {
+    try {
+      // Check if user has taken the test survey
+      const { data, error } = await supabase
+        .from("survey_responses")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("survey_id", "test-survey-id") // We'll need to get the actual test survey ID
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        // No test taken yet, redirect to test
+        navigate("/test-survey");
+      } else {
+        // Test already taken, go to dashboard
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error checking user test status:", error);
+      navigate("/dashboard");
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

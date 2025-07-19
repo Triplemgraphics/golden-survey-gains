@@ -501,33 +501,36 @@ const AdminDashboard = () => {
                         <Badge variant={survey.status === 'active' ? 'default' : 'secondary'}>
                           {survey.status}
                         </Badge>
-                        {survey.category && (
-                          <Badge variant="outline">{survey.category}</Badge>
-                        )}
                       </div>
+                      {survey.category && (
+                        <Badge variant="outline" className="mb-2">
+                          {survey.category}
+                        </Badge>
+                      )}
                       <p className="text-muted-foreground mb-4">{survey.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                         <span>Reward: Ksh {survey.reward}</span>
                         {survey.duration_minutes && (
-                          <span>Duration: {survey.duration_minutes} mins</span>
+                          <span>Duration: {survey.duration_minutes} min</span>
                         )}
-                        <span>Created: {new Date(survey.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button 
-                        variant="outline" 
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => startEdit(survey)}
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleDeleteSurvey(survey.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
                       </Button>
                     </div>
                   </div>
@@ -535,16 +538,6 @@ const AdminDashboard = () => {
               </Card>
             ))}
           </div>
-
-          {surveys.length === 0 && (
-            <Card className="border-border/50 shadow-elegant">
-              <CardContent className="p-12 text-center">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No surveys created yet</h3>
-                <p className="text-muted-foreground">Create your first survey to get started!</p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
