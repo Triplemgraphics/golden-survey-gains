@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Crown, 
   LogOut, 
@@ -15,11 +17,17 @@ import {
   TrendingUp,
   Settings,
   CheckCircle,
-  Star
+  Star,
+  Copy,
+  Users,
+  CreditCard,
+  Plus
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
+import PremiumSurveyModal from "@/components/PremiumSurveyModal";
+import PaymentMethodModal from "@/components/PaymentMethodModal";
 
 interface Profile {
   id: string;
@@ -28,6 +36,9 @@ interface Profile {
   email: string | null;
   total_earnings: number;
   surveys_completed: number;
+  credits: number;
+  referral_code: string | null;
+  test_survey_completed: boolean;
 }
 
 interface Survey {
@@ -45,6 +56,9 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -63,6 +77,19 @@ const Dashboard = () => {
 
       setUser(session.user);
       await fetchProfile(session.user.id);
+      
+      // Check if user needs to take test survey first
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("test_survey_completed")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (!profileData?.test_survey_completed) {
+        navigate("/test-survey");
+        return;
+      }
+
       await fetchSurveys();
     } catch (error) {
       console.error("Error checking user:", error);
@@ -116,10 +143,33 @@ const Dashboard = () => {
     }
   };
 
-  const startSurvey = (surveyId: string) => {
+  const startSurvey = (survey: Survey) => {
+    // Check if it's a premium survey (reward > 50)
+    if (survey.reward > 50) {
+      setSelectedSurvey(survey);
+      setPremiumModalOpen(true);
+    } else {
+      toast({
+        title: "Survey Started",
+        description: "Survey functionality will be available soon!",
+      });
+    }
+  };
+
+  const copyReferralCode = () => {
+    if (profile?.referral_code) {
+      navigator.clipboard.writeText(profile.referral_code);
+      toast({
+        title: "Copied!",
+        description: "Referral code copied to clipboard",
+      });
+    }
+  };
+
+  const handlePaymentMethodSuccess = () => {
     toast({
-      title: "Survey Started",
-      description: "Survey functionality will be available soon!",
+      title: "Success",
+      description: "Payment method updated successfully!",
     });
   };
 
@@ -223,8 +273,8 @@ const Dashboard = () => {
                   <Star className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">4.9</p>
-                  <p className="text-sm text-muted-foreground">Rating</p>
+                  <p className="text-2xl font-bold">{profile?.credits || 0}</p>
+                  <p className="text-sm text-muted-foreground">Credits</p>
                 </div>
               </div>
             </CardContent>
@@ -233,9 +283,10 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="surveys" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-            <TabsTrigger value="surveys">Available Surveys</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
+            <TabsTrigger value="surveys">Surveys</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="referrals">Referrals</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
@@ -253,12 +304,24 @@ const Dashboard = () => {
               ) : (
                 <div className="grid gap-4">
                   {surveys.map((survey) => (
-                    <Card key={survey.id} className="border-border/50 shadow-elegant hover:shadow-lg transition-shadow">
+                    <Card key={survey.id} className="border-border/50 shadow-elegant hover:shadow-lg transition-shadow relative">
+                      {survey.reward > 50 && (
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full p-2 shadow-lg">
+                            <Crown className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      )}
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold text-lg">{survey.title}</h3>
+                              {survey.reward > 50 && (
+                                <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0">
+                                  Premium
+                                </Badge>
+                              )}
                               {survey.category && (
                                 <Badge variant="secondary">{survey.category}</Badge>
                               )}
@@ -267,7 +330,9 @@ const Dashboard = () => {
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <DollarSign className="w-4 h-4" />
-                                <span>Ksh {survey.reward}</span>
+                                <span className={survey.reward > 50 ? "text-yellow-600 font-semibold" : ""}>
+                                  Ksh {survey.reward}
+                                </span>
                               </div>
                               {survey.duration_minutes && (
                                 <div className="flex items-center gap-1">
@@ -278,10 +343,17 @@ const Dashboard = () => {
                             </div>
                           </div>
                           <Button 
-                            onClick={() => startSurvey(survey.id)}
-                            className="ml-4"
+                            onClick={() => startSurvey(survey)}
+                            className={`ml-4 ${survey.reward > 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700' : ''}`}
                           >
-                            Start Survey
+                            {survey.reward > 50 ? (
+                              <>
+                                <Crown className="w-4 h-4 mr-2" />
+                                Premium
+                              </>
+                            ) : (
+                              "Start Survey"
+                            )}
                           </Button>
                         </div>
                       </CardContent>
@@ -302,6 +374,66 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Complete your first survey to see your history here!</p>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="referrals" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Referral Program</h2>
+              <div className="grid gap-6">
+                <Card className="border-border/50 shadow-elegant">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Your Referral Code
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        value={profile?.referral_code || ""} 
+                        readOnly 
+                        className="font-mono text-lg"
+                      />
+                      <Button onClick={copyReferralCode} size="sm">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Share this code with friends and earn 10 credits for each successful signup!
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border/50 shadow-elegant">
+                  <CardHeader>
+                    <CardTitle>How It Works</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground">1</div>
+                      <div>
+                        <p className="font-medium">Share your code</p>
+                        <p className="text-sm text-muted-foreground">Send your referral code to friends</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground">2</div>
+                      <div>
+                        <p className="font-medium">They sign up</p>
+                        <p className="text-sm text-muted-foreground">Friends use your code during registration</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground">3</div>
+                      <div>
+                        <p className="font-medium">You both earn</p>
+                        <p className="text-sm text-muted-foreground">Get 10 credits for each successful referral</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
 
@@ -327,16 +459,38 @@ const Dashboard = () => {
                     <label className="text-sm font-medium">Email</label>
                     <p className="text-lg">{profile?.email || "Not set"}</p>
                   </div>
-                  <Button variant="outline" className="mt-4">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  <div className="flex gap-3 mt-4">
+                    <Button variant="outline">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                    <Button onClick={() => setPaymentModalOpen(true)}>
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Payment Method
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modals */}
+      {selectedSurvey && (
+        <PremiumSurveyModal
+          isOpen={premiumModalOpen}
+          onClose={() => setPremiumModalOpen(false)}
+          survey={selectedSurvey}
+          userCredits={profile?.credits || 0}
+        />
+      )}
+
+      <PaymentMethodModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        onSuccess={handlePaymentMethodSuccess}
+      />
     </div>
   );
 };

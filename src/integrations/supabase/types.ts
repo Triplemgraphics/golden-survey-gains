@@ -52,16 +52,50 @@ export type Database = {
           },
         ]
       }
+      payment_methods: {
+        Row: {
+          created_at: string
+          details: Json
+          id: string
+          is_default: boolean | null
+          method_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          id?: string
+          is_default?: boolean | null
+          method_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: string
+          is_default?: boolean | null
+          method_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
+          credits: number | null
           email: string | null
           first_name: string | null
           id: string
           last_name: string | null
           phone: string | null
+          referral_code: string | null
+          referred_by: string | null
           surveys_completed: number | null
+          test_survey_completed: boolean | null
           total_earnings: number | null
           updated_at: string
           user_id: string
@@ -69,12 +103,16 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          credits?: number | null
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           surveys_completed?: number | null
+          test_survey_completed?: boolean | null
           total_earnings?: number | null
           updated_at?: string
           user_id: string
@@ -82,17 +120,29 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          credits?: number | null
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           surveys_completed?: number | null
+          test_survey_completed?: boolean | null
           total_earnings?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["referral_code"]
+          },
+        ]
       }
       survey_responses: {
         Row: {
@@ -191,6 +241,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string

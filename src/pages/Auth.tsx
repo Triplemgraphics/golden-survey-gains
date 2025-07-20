@@ -16,6 +16,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -44,15 +45,14 @@ const Auth = () => {
 
   const checkNewUser = async (userId: string) => {
     try {
-      // Check if user has taken the test survey
-      const { data, error } = await supabase
-        .from("survey_responses")
-        .select("id")
+      // Check if user has completed test survey
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("test_survey_completed")
         .eq("user_id", userId)
-        .eq("survey_id", "test-survey-id") // We'll need to get the actual test survey ID
         .single();
 
-      if (error && error.code === 'PGRST116') {
+      if (!profile?.test_survey_completed) {
         // No test taken yet, redirect to test
         navigate("/test-survey");
       } else {
@@ -78,6 +78,7 @@ const Auth = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
+            referred_by: referralCode || null,
           }
         }
       });
@@ -250,6 +251,16 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+                    <Input
+                      id="referral-code"
+                      type="text"
+                      placeholder="Enter referral code"
+                      value={referralCode}
+                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                     />
                   </div>
                   <Button 

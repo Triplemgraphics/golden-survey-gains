@@ -70,6 +70,12 @@ const TestSurveyPage = () => {
             survey_id: testSurveyId,
             responses: { score, completed: true, test_type: "knowledge_assessment" }
           });
+
+        // Mark test as completed in profile
+        await supabase
+          .from("profiles")
+          .update({ test_survey_completed: true })
+          .eq("user_id", user.id);
       }
 
       toast({
