@@ -5,7 +5,7 @@ const Testimonials = () => {
   const testimonials = [
     {
       name: "Sarah Njoki",
-      location: "Nairobi",
+      location: "Kiambu",
       rating: 5,
       text: "I've earned over Ksh 15,000 in just 3 months! The surveys are interesting and payouts are instant. Perfect side income.",
       earnings: "Ksh 15,000+ earned",
@@ -13,43 +13,35 @@ const Testimonials = () => {
     },
     {
       name: "David Kimani",
-      location: "Mombasa", 
+      location: "Nairobi", 
       rating: 5,
       text: "Survey Africa changed my life. I can now pay for my daily expenses just by sharing my opinions during lunch breaks.",
       earnings: "Ksh 12,500+ earned",
       avatar: "DK"
     },
     {
-      name: "Grace Wanjiru",
+      name: "Franklin Ochieng",
       location: "Kisumu",
       rating: 5,
       text: "As a student, this is perfect! I earn money for books and transport without affecting my studies. Highly recommend!",
       earnings: "Ksh 8,200+ earned",
-      avatar: "GW"
-    },
-    {
-      name: "Michael Ochieng",
-      location: "Eldoret",
-      rating: 5,
-      text: "The mobile app is so convenient. I complete surveys while commuting and the money adds up quickly. Great platform!",
-      earnings: "Ksh 18,700+ earned",
-      avatar: "MO"
+      avatar: "FO"
     },
     {
       name: "Fatuma Hassan",
-      location: "Nakuru",
+      location: "Mandera",
       rating: 5,
       text: "I was skeptical at first, but after receiving my first payment in 10 minutes, I'm convinced. This is legitimate!",
       earnings: "Ksh 6,800+ earned",
       avatar: "FH"
     },
     {
-      name: "Peter Mwangi",
-      location: "Thika",
+      name: "Suleman Mbote",
+      location: "Mombasa",
       rating: 5,
-      text: "The surveys are relevant to our local market. I feel my opinions actually matter and I get paid for them. Win-win!",
-      earnings: "Ksh 22,100+ earned",
-      avatar: "PM"
+      text: "The mobile app is so convenient. I complete surveys while commuting and the money adds up quickly. Great platform!",
+      earnings: "Ksh 18,700+ earned",
+      avatar: "SM"
     }
   ];
 
@@ -84,7 +76,7 @@ const Testimonials = () => {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-lg">Alice Koech</div>
-                  <div className="opacity-90">Entrepreneur, Nairobi</div>
+                  <div className="opacity-90">Entrepreneur, Eldoret</div>
                   <div className="text-primary-glow font-medium">Ksh 45,000+ earned</div>
                 </div>
               </div>

@@ -10,12 +10,12 @@ import { MessageCircle } from "lucide-react";
 const FAQ = () => {
   const faqs = [
     {
-      question: "How do I sign up for BunnySurveys?",
+      question: "How do I sign up for Survey Africa?",
       answer: "Signing up is completely free and takes less than 2 minutes. Simply click 'Get Started', provide your basic information (name, email, phone), verify your account, and you're ready to start earning! No hidden fees or registration costs."
     },
     {
-      question: "Is BunnySurveys really free to join?",
-      answer: "Yes, absolutely! BunnySurveys is 100% free to join and use. We never charge any membership fees, registration costs, or hidden charges. You only earn money - never spend it with us."
+      question: "Is Survey Africa really free to join?",
+      answer: "Yes, absolutely! Survey Africa is 100% free to join and use. We never charge any membership fees, registration costs, or hidden charges. You only earn money - never spend it with us."
     },
     {
       question: "How are surveys matched to me?",
@@ -34,7 +34,7 @@ const FAQ = () => {
       answer: "You'll receive surveys about products, services, brands, and topics relevant to the Kenyan market. Topics include consumer goods, technology, entertainment, food & beverage, banking, and more. All surveys are from legitimate companies conducting market research."
     },
     {
-      question: "Can I use BunnySurveys on my mobile phone?",
+      question: "Can I use Survey Africa on my mobile phone?",
       answer: "Yes! Our platform is fully optimized for mobile devices. You can complete surveys on your smartphone, tablet, or computer. Many members prefer mobile because they can earn on-the-go during commutes, breaks, or free time."
     },
     {
@@ -63,7 +63,7 @@ const FAQ = () => {
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Got questions? We've got answers! Here are the most common questions 
-            our members ask about earning with BunnySurveys.
+            our members ask about earning with Survey Africa.
           </p>
         </div>
 
@@ -93,7 +93,7 @@ const FAQ = () => {
             <h3 className="text-2xl font-bold mb-4">Still Have Questions?</h3>
             <p className="text-muted-foreground mb-6">
               Our friendly support team is here to help! Get personalized answers 
-              to any questions about earning with BunnySurveys.
+              to any questions about earning with Survey Africa.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="default" size="lg">

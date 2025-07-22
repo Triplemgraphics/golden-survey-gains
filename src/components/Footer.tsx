@@ -15,7 +15,7 @@ const Footer = () => {
               </div>
               <div>
                 <div className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
-                  BunnySurveys
+                  Survey Africa
                 </div>
                 <div className="text-xs text-background/70 -mt-1">
                   Earn. Share. Prosper.
@@ -75,14 +75,14 @@ const Footer = () => {
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-background/80">support@bunnysurveys.co.ke</div>
+                  <div className="text-background/80">triplemgraphics092@gmail.com</div>
                   <div className="text-sm text-background/60">24/7 Support</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary" />
                 <div>
-                  <div className="text-background/80">+254 700 123 456</div>
+                  <div className="text-background/80">+254754868688</div>
                   <div className="text-sm text-background/60">Mon-Fri 8AM-6PM</div>
                 </div>
               </div>
@@ -123,7 +123,7 @@ const Footer = () => {
         <div className="border-t border-background/20 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-background/60 text-sm">
-              © 2024 BunnySurveys. All rights reserved.
+              © 2024 Survey Africa. All rights reserved.
             </div>
             <div className="flex gap-6 text-sm">
               <a href="#" className="text-background/60 hover:text-primary transition-colors">Privacy Policy</a>
