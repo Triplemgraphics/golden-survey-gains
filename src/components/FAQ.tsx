@@ -95,12 +95,9 @@ const FAQ = () => {
               Our friendly support team is here to help! Get personalized answers 
               to any questions about earning with Survey Africa.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button variant="default" size="lg">
                 Contact Support
-              </Button>
-              <Button variant="outline" size="lg">
-                Join Community Chat
               </Button>
             </div>
           </div>

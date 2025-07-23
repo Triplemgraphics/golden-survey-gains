@@ -144,6 +144,12 @@ const Dashboard = () => {
   };
 
   const startSurvey = (survey: Survey) => {
+    // Check if it's the test survey
+    if (survey.title === "Kenya Companies Knowledge Test") {
+      navigate("/test-survey");
+      return;
+    }
+    
     // Check if it's a premium survey (reward > 50)
     if (survey.reward > 50) {
       setSelectedSurvey(survey);
