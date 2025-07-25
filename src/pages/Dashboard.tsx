@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
 import PremiumSurveyModal from "@/components/PremiumSurveyModal";
 import PaymentMethodModal from "@/components/PaymentMethodModal";
+import SubscriptionModal from "@/components/SubscriptionModal";
 
 interface Profile {
   id: string;
@@ -39,6 +40,13 @@ interface Profile {
   credits: number;
   referral_code: string | null;
   test_survey_completed: boolean;
+}
+
+interface Subscription {
+  plan_name: string;
+  daily_survey_limit: number;
+  status: string;
+  end_date: string;
 }
 
 interface Survey {
@@ -59,6 +67,9 @@ const Dashboard = () => {
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [dailySurveyCount, setDailySurveyCount] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -77,6 +88,8 @@ const Dashboard = () => {
 
       setUser(session.user);
       await fetchProfile(session.user.id);
+      await fetchSubscription(session.user.id);
+      await fetchDailySurveyCount(session.user.id);
       
       // Check if user needs to take test survey first
       const { data: profileData } = await supabase
@@ -129,6 +142,32 @@ const Dashboard = () => {
     }
   };
 
+  const fetchSubscription = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_user_current_subscription', { user_id_param: userId });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        setSubscription(data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
+
+  const fetchDailySurveyCount = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_daily_survey_count', { user_id_param: userId });
+
+      if (error) throw error;
+      setDailySurveyCount(data || 0);
+    } catch (error) {
+      console.error("Error fetching daily survey count:", error);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -143,21 +182,62 @@ const Dashboard = () => {
     }
   };
 
-  const startSurvey = (survey: Survey) => {
+  const startSurvey = async (survey: Survey) => {
     // Check if it's the test survey
     if (survey.title === "Kenya Companies Knowledge Test") {
       navigate("/test-survey");
       return;
     }
+
+    // Check daily limits
+    const maxDaily = subscription ? subscription.daily_survey_limit : 1;
+    if (dailySurveyCount >= maxDaily) {
+      toast({
+        title: "Daily Limit Reached",
+        description: `You've reached your daily limit of ${maxDaily} surveys. ${!subscription ? 'Upgrade to premium for more surveys!' : 'Try again tomorrow.'}`,
+        variant: "destructive",
+      });
+      if (!subscription) {
+        setSubscriptionModalOpen(true);
+      }
+      return;
+    }
+
+    // Check if free user trying to access premium survey
+    if (!subscription && survey.reward >= 50) {
+      toast({
+        title: "Premium Survey",
+        description: "This survey requires a premium subscription. Upgrade to access high-reward surveys!",
+        variant: "destructive",
+      });
+      setSubscriptionModalOpen(true);
+      return;
+    }
     
-    // Check if it's a premium survey (reward > 50)
-    if (survey.reward > 50) {
-      setSelectedSurvey(survey);
-      setPremiumModalOpen(true);
-    } else {
+    // Record survey access
+    try {
+      await supabase
+        .from('daily_survey_access')
+        .insert({
+          user_id: user?.id,
+          survey_id: survey.id
+        });
+      
+      // Refresh daily count
+      if (user?.id) {
+        await fetchDailySurveyCount(user.id);
+      }
+      
       toast({
         title: "Survey Started",
         description: "Survey functionality will be available soon!",
+      });
+    } catch (error) {
+      console.error('Error recording survey access:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start survey. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -228,6 +308,56 @@ const Dashboard = () => {
       </header>
 
       <div className="container mx-auto px-6 py-8">
+        {/* Subscription Status */}
+        {subscription ? (
+          <Card className="border-border/50 shadow-elegant mb-6 bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
+                    <Crown className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Premium Active: {subscription.plan_name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Daily surveys used: {dailySurveyCount}/{subscription.daily_survey_limit}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Expires: {new Date(subscription.end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Progress value={(dailySurveyCount / subscription.daily_survey_limit) * 100} className="w-24 mb-2" />
+                  <p className="text-xs text-muted-foreground">Usage Today</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-border/50 shadow-elegant mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-600 rounded-lg flex items-center justify-center">
+                    <Star className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Free Plan</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Daily surveys used: {dailySurveyCount}/1 • Surveys under Ksh 50 only
+                    </p>
+                  </div>
+                </div>
+                <Button onClick={() => setSubscriptionModalOpen(true)} className="bg-gradient-to-r from-yellow-400 to-yellow-600">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Go Premium
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-border/50 shadow-elegant">
@@ -496,6 +626,12 @@ const Dashboard = () => {
         isOpen={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
         onSuccess={handlePaymentMethodSuccess}
+      />
+
+      <SubscriptionModal
+        isOpen={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+        userId={user?.id || ''}
       />
     </div>
   );

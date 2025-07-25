@@ -20,7 +20,10 @@ import {
   Eye,
   Edit,
   Trash2,
-  Settings
+  Settings,
+  Check,
+  X,
+  Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -52,10 +55,23 @@ interface SurveyForm {
   duration_minutes: number;
 }
 
+interface PendingSubscription {
+  id: string;
+  user_id: string;
+  plan_name: string;
+  plan_price: number;
+  mpesa_code: string;
+  created_at: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+}
+
 const AdminDashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [pendingSubscriptions, setPendingSubscriptions] = useState<PendingSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -101,6 +117,7 @@ const AdminDashboard = () => {
       setIsAdmin(true);
       await fetchProfile(session.user.id);
       await fetchSurveys();
+      await fetchPendingSubscriptions();
     } catch (error) {
       console.error("Error checking admin:", error);
       navigate("/auth");
@@ -135,6 +152,61 @@ const AdminDashboard = () => {
       setSurveys(data || []);
     } catch (error) {
       console.error("Error fetching surveys:", error);
+    }
+  };
+
+  const fetchPendingSubscriptions = async () => {
+    try {
+      // First get subscriptions with plan details
+      const { data: subscriptionsData, error: subsError } = await supabase
+        .from('subscriptions')
+        .select(`
+          id,
+          user_id,
+          plan_id,
+          mpesa_code,
+          created_at
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (subsError) throw subsError;
+
+      if (!subscriptionsData || subscriptionsData.length === 0) {
+        setPendingSubscriptions([]);
+        return;
+      }
+
+      // Get plan details and user profiles separately
+      const planIds = subscriptionsData.map(sub => sub.plan_id);
+      const userIds = subscriptionsData.map(sub => sub.user_id);
+
+      const [{ data: plansData }, { data: profilesData }] = await Promise.all([
+        supabase.from('subscription_plans').select('id, name, price').in('id', planIds),
+        supabase.from('profiles').select('user_id, first_name, last_name, email').in('user_id', userIds)
+      ]);
+
+      // Combine the data
+      const formatted = subscriptionsData.map(sub => {
+        const plan = plansData?.find(p => p.id === sub.plan_id);
+        const profile = profilesData?.find(p => p.user_id === sub.user_id);
+        
+        return {
+          id: sub.id,
+          user_id: sub.user_id,
+          plan_name: plan?.name || 'Unknown',
+          plan_price: plan?.price || 0,
+          mpesa_code: sub.mpesa_code || '',
+          created_at: sub.created_at,
+          first_name: profile?.first_name,
+          last_name: profile?.last_name,
+          email: profile?.email,
+        };
+      });
+
+      setPendingSubscriptions(formatted);
+    } catch (error) {
+      console.error("Error fetching pending subscriptions:", error);
     }
   };
 
@@ -256,6 +328,65 @@ const AdminDashboard = () => {
       duration_minutes: survey.duration_minutes || 0,
     });
     setShowCreateForm(false);
+  };
+
+  const handleApproveSubscription = async (subscriptionId: string) => {
+    try {
+      const now = new Date();
+      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({
+          status: 'active',
+          start_date: now.toISOString(),
+          end_date: endDate.toISOString(),
+          approved_by: user?.id
+        })
+        .eq('id', subscriptionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Subscription approved successfully",
+      });
+
+      fetchPendingSubscriptions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve subscription",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRejectSubscription = async (subscriptionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({
+          status: 'rejected',
+          approved_by: user?.id
+        })
+        .eq('id', subscriptionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Subscription rejected",
+      });
+
+      fetchPendingSubscriptions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject subscription",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -383,9 +514,15 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Survey Management</h2>
+        <Tabs defaultValue="surveys" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="surveys">Survey Management</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscription Requests ({pendingSubscriptions.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="surveys" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Survey Management</h2>
             <Button 
               onClick={() => {
                 setShowCreateForm(true);
@@ -538,7 +675,59 @@ const AdminDashboard = () => {
               </Card>
             ))}
           </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="subscriptions" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Subscription Requests</h2>
+              {pendingSubscriptions.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No pending requests</h3>
+                    <p className="text-muted-foreground">All subscription requests have been processed.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {pendingSubscriptions.map((subscription) => (
+                    <Card key={subscription.id}>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">{subscription.first_name} {subscription.last_name}</h3>
+                            <p className="text-sm text-muted-foreground">{subscription.email}</p>
+                            <Badge className="mt-2">{subscription.plan_name} - Ksh {subscription.plan_price}</Badge>
+                            <p className="text-xs text-muted-foreground mt-1">M-Pesa Code: {subscription.mpesa_code}</p>
+                            <p className="text-xs text-muted-foreground">Submitted: {new Date(subscription.created_at).toLocaleString()}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveSubscription(subscription.id)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Check className="w-4 h-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleRejectSubscription(subscription.id)}
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

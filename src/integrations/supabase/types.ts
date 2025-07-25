@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_survey_access: {
+        Row: {
+          access_date: string
+          created_at: string
+          id: string
+          survey_id: string
+          user_id: string
+        }
+        Insert: {
+          access_date?: string
+          created_at?: string
+          id?: string
+          survey_id: string
+          user_id: string
+        }
+        Update: {
+          access_date?: string
+          created_at?: string
+          id?: string
+          survey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_survey_access_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       earnings: {
         Row: {
           amount: number
@@ -144,6 +176,80 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          daily_survey_limit: number
+          duration_days: number
+          id: string
+          name: string
+          price: number
+        }
+        Insert: {
+          created_at?: string
+          daily_survey_limit: number
+          duration_days?: number
+          id?: string
+          name: string
+          price: number
+        }
+        Update: {
+          created_at?: string
+          daily_survey_limit?: number
+          duration_days?: number
+          id?: string
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          end_date: string | null
+          id: string
+          mpesa_code: string | null
+          plan_id: string
+          start_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          mpesa_code?: string | null
+          plan_id: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          mpesa_code?: string | null
+          plan_id?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       survey_responses: {
         Row: {
           completed_at: string
@@ -244,6 +350,19 @@ export type Database = {
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_daily_survey_count: {
+        Args: { user_id_param: string }
+        Returns: number
+      }
+      get_user_current_subscription: {
+        Args: { user_id_param: string }
+        Returns: {
+          plan_name: string
+          daily_survey_limit: number
+          status: string
+          end_date: string
+        }[]
       }
       has_role: {
         Args: {
