@@ -29,6 +29,7 @@ import type { User } from "@supabase/supabase-js";
 import PremiumSurveyModal from "@/components/PremiumSurveyModal";
 import PaymentMethodModal from "@/components/PaymentMethodModal";
 import SubscriptionModal from "@/components/SubscriptionModal";
+import FreeSurvey from "@/components/FreeSurvey";
 
 interface Profile {
   id: string;
@@ -70,6 +71,8 @@ const Dashboard = () => {
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [dailySurveyCount, setDailySurveyCount] = useState(0);
+  const [showFreeSurvey, setShowFreeSurvey] = useState(false);
+  const [freeSurveyCompleted, setFreeSurveyCompleted] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -427,8 +430,68 @@ const Dashboard = () => {
           </TabsList>
 
           <TabsContent value="surveys" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
+            {showFreeSurvey ? (
+              <div>
+                <FreeSurvey 
+                  onComplete={() => {
+                    setShowFreeSurvey(false);
+                    setFreeSurveyCompleted(true);
+                    if (user?.id) {
+                      fetchProfile(user.id);
+                    }
+                  }}
+                  onBack={() => setShowFreeSurvey(false)}
+                  userId={user?.id || ""}
+                />
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
+                
+                {/* Free Survey Card - Always at top */}
+                {!freeSurveyCompleted && (
+                  <Card className="border-border/50 shadow-elegant hover:shadow-lg transition-shadow mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-lg">Free Demographics Survey</h3>
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                              Free
+                            </Badge>
+                            <Badge variant="secondary">Demographics</Badge>
+                          </div>
+                          <p className="text-muted-foreground mb-4">
+                            Share your basic demographic information to help us understand our community better. 
+                            Complete this survey to earn your first reward!
+                          </p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="w-4 h-4" />
+                              <span className="text-green-600 font-semibold">Ksh 25</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              <span>5-8 minutes</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-500" />
+                              <span>No subscription required</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 ml-4">
+                          <Button 
+                            onClick={() => setShowFreeSurvey(true)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            Start Survey
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               {surveys.length === 0 ? (
                 <Card className="border-border/50 shadow-elegant">
                   <CardContent className="p-12 text-center">
@@ -470,14 +533,14 @@ const Dashboard = () => {
                                   Ksh {survey.reward}
                                 </span>
                               </div>
-                              {survey.duration_minutes && (
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>{survey.duration_minutes} mins</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                               {survey.duration_minutes && (
+                                 <div className="flex items-center gap-1">
+                                   <Clock className="w-4 h-4" />
+                                   <span>{survey.duration_minutes} mins</span>
+                                 </div>
+                               )}
+                             </div>
+                           </div>
                           <Button 
                             onClick={() => startSurvey(survey)}
                             className={`ml-4 ${survey.reward > 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700' : ''}`}
@@ -496,8 +559,9 @@ const Dashboard = () => {
                     </Card>
                   ))}
                 </div>
-              )}
-            </div>
+               )}
+             </div>
+           )}
           </TabsContent>
 
           <TabsContent value="history" className="space-y-6">
