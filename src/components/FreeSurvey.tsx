@@ -123,7 +123,7 @@ const FreeSurvey = ({ onComplete, onBack, userId }: FreeSurveyProps) => {
       // Create survey response
       const surveyData = {
         user_id: userId,
-        survey_id: 'free-survey-' + Date.now(), // Temporary ID for free survey
+        survey_id: crypto.randomUUID(), // Generate proper UUID for free survey
         responses: {
           answers,
           portfolio,
@@ -159,7 +159,7 @@ const FreeSurvey = ({ onComplete, onBack, userId }: FreeSurveyProps) => {
         .from('earnings')
         .insert({
           user_id: userId,
-          survey_id: 'free-survey-' + Date.now(),
+          survey_id: surveyData.survey_id,
           amount: 25,
           status: 'pending'
         });
