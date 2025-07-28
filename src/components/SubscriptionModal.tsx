@@ -14,6 +14,7 @@ interface SubscriptionPlan {
   price: number;
   daily_survey_limit: number;
   duration_days: number;
+  benefits?: string[];
 }
 
 interface SubscriptionModalProps {
@@ -47,7 +48,14 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
         .order('price', { ascending: true });
 
       if (error) throw error;
-      setPlans(data || []);
+      
+      const formattedPlans = (data || []).map(plan => ({
+        ...plan,
+        benefits: Array.isArray(plan.benefits) ? plan.benefits : 
+                 typeof plan.benefits === 'string' ? JSON.parse(plan.benefits) : []
+      }));
+      
+      setPlans(formattedPlans);
     } catch (error) {
       console.error('Error fetching plans:', error);
       toast({
@@ -174,6 +182,12 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
                         <Check className="w-4 h-4 text-green-500" />
                         <span className="text-sm">Priority support</span>
                       </div>
+                      {plan.benefits && plan.benefits.map((benefit, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          <span className="text-sm">{benefit}</span>
+                        </div>
+                      ))}
                     </div>
                     <Button className="w-full" onClick={() => handlePlanSelect(plan)}>
                       Select Plan

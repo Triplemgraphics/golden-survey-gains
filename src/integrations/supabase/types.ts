@@ -178,6 +178,7 @@ export type Database = {
       }
       subscription_plans: {
         Row: {
+          benefits: Json | null
           created_at: string
           daily_survey_limit: number
           duration_days: number
@@ -186,6 +187,7 @@ export type Database = {
           price: number
         }
         Insert: {
+          benefits?: Json | null
           created_at?: string
           daily_survey_limit: number
           duration_days?: number
@@ -194,6 +196,7 @@ export type Database = {
           price: number
         }
         Update: {
+          benefits?: Json | null
           created_at?: string
           daily_survey_limit?: number
           duration_days?: number
