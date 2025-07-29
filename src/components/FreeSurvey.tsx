@@ -123,7 +123,7 @@ const FreeSurvey = ({ onComplete, onBack, userId }: FreeSurveyProps) => {
       // Create survey response
       const surveyData = {
         user_id: userId,
-        survey_id: crypto.randomUUID(), // Generate proper UUID for free survey
+        survey_id: '00000000-0000-0000-0000-000000000001', // Use the predefined free survey ID
         responses: {
           answers,
           portfolio,
