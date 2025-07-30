@@ -21,7 +21,8 @@ import {
   Copy,
   Users,
   CreditCard,
-  Plus
+  Plus,
+  Wallet
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ import PremiumSurveyModal from "@/components/PremiumSurveyModal";
 import PaymentMethodModal from "@/components/PaymentMethodModal";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import FreeSurvey from "@/components/FreeSurvey";
+import WalletComponent from "@/components/Wallet";
 
 interface Profile {
   id: string;
@@ -73,6 +75,7 @@ const Dashboard = () => {
   const [dailySurveyCount, setDailySurveyCount] = useState(0);
   const [showFreeSurvey, setShowFreeSurvey] = useState(false);
   const [freeSurveyCompleted, setFreeSurveyCompleted] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -93,6 +96,18 @@ const Dashboard = () => {
       await fetchProfile(session.user.id);
       await fetchSubscription(session.user.id);
       await fetchDailySurveyCount(session.user.id);
+      
+      // Check if free survey is completed
+      const { data: freeSurveyData } = await supabase
+        .from("survey_responses")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .eq("survey_id", "00000000-0000-0000-0000-000000000001")
+        .maybeSingle();
+      
+      if (freeSurveyData) {
+        setFreeSurveyCompleted(true);
+      }
       
       // Check if user needs to take test survey first
       const { data: profileData } = await supabase
@@ -292,6 +307,15 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setWalletModalOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Wallet className="w-4 h-4" />
+                Ksh {profile?.total_earnings || 0}
+              </Button>
               <div className="text-right">
                 <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
                 <p className="text-sm text-muted-foreground">{profile?.email}</p>
@@ -449,49 +473,73 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
                 
                 {/* Free Survey Card - Always at top */}
-                {!freeSurveyCompleted && (
-                  <Card className="border-border/50 shadow-elegant hover:shadow-lg transition-shadow mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-lg">Free Demographics Survey</h3>
+                <Card className={`border-border/50 shadow-elegant hover:shadow-lg transition-shadow mb-6 ${
+                  freeSurveyCompleted 
+                    ? 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200' 
+                    : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                }`}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg">Free Demographics Survey</h3>
+                          {freeSurveyCompleted ? (
+                            <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Completed
+                            </Badge>
+                          ) : (
                             <Badge className="bg-green-100 text-green-800 border-green-200">
                               Free
                             </Badge>
-                            <Badge variant="secondary">Demographics</Badge>
-                          </div>
-                          <p className="text-muted-foreground mb-4">
-                            Share your basic demographic information to help us understand our community better. 
-                            Complete this survey to earn your first reward!
-                          </p>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              <span className="text-green-600 font-semibold">Ksh 25</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <span>5-8 minutes</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 text-yellow-500" />
-                              <span>No subscription required</span>
-                            </div>
-                          </div>
+                          )}
+                          <Badge variant="secondary">Demographics</Badge>
                         </div>
-                        <div className="flex flex-col gap-2 ml-4">
-                          <Button 
-                            onClick={() => setShowFreeSurvey(true)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            Start Survey
-                          </Button>
+                        <p className="text-muted-foreground mb-4">
+                          {freeSurveyCompleted 
+                            ? "You have successfully completed the demographics survey. Thank you for your participation!"
+                            : "Share your basic demographic information to help us understand our community better. Complete this survey to earn your first reward!"
+                          }
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            <span className={freeSurveyCompleted ? "text-gray-600" : "text-green-600 font-semibold"}>Ksh 25</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>5-8 minutes</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            <span>No subscription required</span>
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                      <div className="flex flex-col gap-2 ml-4">
+                        <Button 
+                          onClick={() => {
+                            if (freeSurveyCompleted) {
+                              toast({
+                                title: "Survey Completed",
+                                description: "You have already completed this survey. Each user can only complete it once.",
+                              });
+                            } else {
+                              setShowFreeSurvey(true);
+                            }
+                          }}
+                          className={freeSurveyCompleted 
+                            ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" 
+                            : "bg-green-600 hover:bg-green-700"
+                          }
+                          disabled={freeSurveyCompleted}
+                        >
+                          {freeSurveyCompleted ? "Done" : "Start Survey"}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               {surveys.length === 0 ? (
                 <Card className="border-border/50 shadow-elegant">
                   <CardContent className="p-12 text-center">
@@ -696,6 +744,14 @@ const Dashboard = () => {
         isOpen={subscriptionModalOpen}
         onClose={() => setSubscriptionModalOpen(false)}
         userId={user?.id || ''}
+      />
+
+      <WalletComponent
+        isOpen={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        userId={user?.id || ''}
+        currentBalance={profile?.total_earnings || 0}
+        subscription={subscription}
       />
     </div>
   );
