@@ -45,6 +45,13 @@ interface Profile {
   test_survey_completed: boolean;
 }
 
+interface PaymentMethod {
+  id: string;
+  method_type: string;
+  details: any;
+  is_default: boolean;
+}
+
 interface Subscription {
   plan_name: string;
   daily_survey_limit: number;
@@ -76,6 +83,7 @@ const Dashboard = () => {
   const [showFreeSurvey, setShowFreeSurvey] = useState(false);
   const [freeSurveyCompleted, setFreeSurveyCompleted] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -96,6 +104,7 @@ const Dashboard = () => {
       await fetchProfile(session.user.id);
       await fetchSubscription(session.user.id);
       await fetchDailySurveyCount(session.user.id);
+      await fetchPaymentMethods(session.user.id);
       
       // Check if free survey is completed
       const { data: freeSurveyData } = await supabase
@@ -183,6 +192,21 @@ const Dashboard = () => {
       setDailySurveyCount(data || 0);
     } catch (error) {
       console.error("Error fetching daily survey count:", error);
+    }
+  };
+
+  const fetchPaymentMethods = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("payment_methods")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setPaymentMethods(data || []);
+    } catch (error) {
+      console.error("Error fetching payment methods:", error);
     }
   };
 
@@ -275,6 +299,10 @@ const Dashboard = () => {
       title: "Success",
       description: "Payment method updated successfully!",
     });
+    // Refresh payment methods
+    if (user?.id) {
+      fetchPaymentMethods(user.id);
+    }
   };
 
   if (loading) {
@@ -386,7 +414,7 @@ const Dashboard = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="border-border/50 shadow-elegant">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
@@ -424,20 +452,6 @@ const Dashboard = () => {
                 <div>
                   <p className="text-2xl font-bold">{surveys.length}</p>
                   <p className="text-sm text-muted-foreground">Available</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/50 shadow-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Star className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{profile?.credits || 0}</p>
-                  <p className="text-sm text-muted-foreground">Credits</p>
                 </div>
               </div>
             </CardContent>
@@ -707,14 +721,47 @@ const Dashboard = () => {
                     <label className="text-sm font-medium">Email</label>
                     <p className="text-lg">{profile?.email || "Not set"}</p>
                   </div>
-                  <div className="flex gap-3 mt-4">
-                    <Button variant="outline">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Edit Profile
+                  
+                  {/* Payment Methods Section */}
+                  <div className="mt-6">
+                    <label className="text-sm font-medium">Payment Methods</label>
+                    {paymentMethods.length > 0 ? (
+                      <div className="mt-2 space-y-2">
+                        {paymentMethods.map((method) => (
+                          <div key={method.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium capitalize">{method.method_type}</span>
+                                {method.is_default && (
+                                  <Badge variant="secondary" className="text-xs">Default</Badge>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {method.method_type === 'mpesa' && `••••${method.details.phone?.slice(-4) || ''}`}
+                                {method.method_type === 'bank_transfer' && `${method.details.bank_name || ''} ••••${method.details.account_number?.slice(-4) || ''}`}
+                                {method.method_type === 'paypal' && method.details.email}
+                                {(method.method_type === 'pi_network' || method.method_type === 'usdt') && method.details.wallet_address}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground mt-2">No payment methods added</p>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-3 mt-6">
+                    <Button 
+                      onClick={() => setWalletModalOpen(true)}
+                      variant="outline"
+                    >
+                      <Wallet className="w-4 h-4 mr-2" />
+                      Wallet
                     </Button>
                     <Button onClick={() => setPaymentModalOpen(true)}>
                       <CreditCard className="w-4 h-4 mr-2" />
-                      Payment Method
+                      {paymentMethods.length > 0 ? "Update Payment Method" : "Add Payment Method"}
                     </Button>
                   </div>
                 </CardContent>
