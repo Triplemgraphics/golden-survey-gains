@@ -23,7 +23,7 @@ const FAQ = () => {
     },
     {
       question: "How much money can I earn?",
-      answer: "Earnings vary based on survey length and complexity. Short surveys (2-3 minutes) typically pay Ksh 50-150, while longer surveys (10-15 minutes) can pay up to Ksh 300. Most active members earn Ksh 3,000-8,000 per month."
+      answer: "Earnings vary based on survey length and complexity. Short surveys (2-3 minutes) typically pay Ksh 50-150, while longer surveys (10-15 minutes) can pay up to Ksh 300. Most active members earn Ksh 5,000-35,000 per month."
     },
     {
       question: "How and when do I get paid?",

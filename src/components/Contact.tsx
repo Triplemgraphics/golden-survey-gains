@@ -161,6 +161,21 @@ const Contact = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="group hover:shadow-elegant transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-gradient-primary group-hover:text-primary-foreground transition-all duration-300">
+                      <MapPin className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Headquarters</h3>
+                      <p className="text-muted-foreground">London</p>
+                      <p className="text-sm text-muted-foreground">United Kingdom</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Social Media */}
