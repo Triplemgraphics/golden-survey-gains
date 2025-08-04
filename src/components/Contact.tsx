@@ -110,7 +110,12 @@ const Contact = () => {
                     </div>
             <div>
               <h3 className="font-semibold mb-1">Email Support</h3>
-              <p className="text-muted-foreground">triplemgraphics092@gmail.com</p>
+              <a 
+                href="mailto:info@surveyafrica.ac.ke" 
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                info@surveyafrica.ac.ke
+              </a>
               <p className="text-sm text-muted-foreground">Response within 2 hours</p>
             </div>
                   </div>
