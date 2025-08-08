@@ -414,44 +414,44 @@ const Dashboard = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
           <Card className="border-border/50 shadow-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-primary" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto sm:mx-0">
+                  <DollarSign className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">Ksh {profile?.total_earnings || 0}</p>
-                  <p className="text-sm text-muted-foreground">Total Earnings</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-lg sm:text-xl font-bold">Ksh {profile?.total_earnings || 0}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Earnings</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-border/50 shadow-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-primary" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto sm:mx-0">
+                  <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{profile?.surveys_completed || 0}</p>
-                  <p className="text-sm text-muted-foreground">Completed</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-lg sm:text-xl font-bold">{profile?.surveys_completed || 0}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-border/50 shadow-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-primary" />
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto sm:mx-0">
+                  <FileText className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{surveys.length}</p>
-                  <p className="text-sm text-muted-foreground">Available</p>
+                <div className="text-center sm:text-left">
+                  <p className="text-lg sm:text-xl font-bold">{surveys.length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Available</p>
                 </div>
               </div>
             </CardContent>
