@@ -320,54 +320,54 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/20">
       {/* Header */}
       <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4 max-w-7xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Crown className="w-6 h-6 text-primary-foreground" />
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-8 sm:w-10 h-8 sm:h-10 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                <Crown className="w-4 sm:w-6 h-4 sm:h-6 text-primary-foreground" />
               </div>
-              <div>
-                <div className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
+              <div className="min-w-0">
+                <div className="font-bold text-sm sm:text-lg bg-gradient-primary bg-clip-text text-transparent truncate">
                   Survey Africa
                 </div>
-                <div className="text-xs text-muted-foreground">Dashboard</div>
+                <div className="text-xs text-muted-foreground hidden sm:block">Dashboard</div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setWalletModalOpen(true)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
               >
-                <Wallet className="w-4 h-4" />
-                Ksh {profile?.total_earnings || 0}
+                <Wallet className="w-3 sm:w-4 h-3 sm:h-4" />
+                <span className="hidden xs:inline">Ksh </span>{profile?.total_earnings || 0}
               </Button>
-              <div className="text-right">
-                <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
-                <p className="text-sm text-muted-foreground">{profile?.email}</p>
+              <div className="text-right hidden md:block min-w-0">
+                <p className="font-medium text-sm truncate">{profile?.first_name} {profile?.last_name}</p>
+                <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
               </div>
-              <Avatar>
+              <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
                 <AvatarImage src="" />
-                <AvatarFallback>
+                <AvatarFallback className="text-xs">
                   {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4" />
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex-shrink-0">
+                <LogOut className="w-3 sm:w-4 h-3 sm:h-4" />
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 max-w-7xl">
         {/* Subscription Status */}
         {subscription ? (
           <Card className="border-border/50 shadow-elegant mb-6 bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
                     <Crown className="w-6 h-6 text-white" />
@@ -382,7 +382,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-center sm:text-right">
                   <Progress value={(dailySurveyCount / subscription.daily_survey_limit) * 100} className="w-24 mb-2" />
                   <p className="text-xs text-muted-foreground">Usage Today</p>
                 </div>
@@ -391,8 +391,8 @@ const Dashboard = () => {
           </Card>
         ) : (
           <Card className="border-border/50 shadow-elegant mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-600 rounded-lg flex items-center justify-center">
                     <Star className="w-6 h-6 text-white" />
@@ -404,7 +404,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-                <Button onClick={() => setSubscriptionModalOpen(true)} className="bg-gradient-to-r from-yellow-400 to-yellow-600">
+                <Button onClick={() => setSubscriptionModalOpen(true)} className="bg-gradient-to-r from-yellow-400 to-yellow-600 w-full sm:w-auto">
                   <Crown className="w-4 h-4 mr-2" />
                   Go Premium
                 </Button>
@@ -460,11 +460,11 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="surveys" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
-            <TabsTrigger value="surveys">Surveys</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="referrals">Referrals</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 max-w-md mx-auto lg:mx-0">
+            <TabsTrigger value="surveys" className="text-xs sm:text-sm">Surveys</TabsTrigger>
+            <TabsTrigger value="history" className="text-xs sm:text-sm">History</TabsTrigger>
+            <TabsTrigger value="referrals" className="text-xs sm:text-sm">Referrals</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="surveys" className="space-y-6">
@@ -492,30 +492,30 @@ const Dashboard = () => {
                     ? 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200' 
                     : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
                 }`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">Free Demographics Survey</h3>
                           {freeSurveyCompleted ? (
-                            <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                            <Badge className="bg-gray-100 text-gray-800 border-gray-200 text-xs">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Completed
                             </Badge>
                           ) : (
-                            <Badge className="bg-green-100 text-green-800 border-green-200">
+                            <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
                               Free
                             </Badge>
                           )}
-                          <Badge variant="secondary">Demographics</Badge>
+                          <Badge variant="secondary" className="text-xs">Demographics</Badge>
                         </div>
-                        <p className="text-muted-foreground mb-4">
+                        <p className="text-muted-foreground mb-4 text-sm">
                           {freeSurveyCompleted 
                             ? "You have successfully completed the demographics survey. Thank you for your participation!"
                             : "Share your basic demographic information to help us understand our community better. Complete this survey to earn your first reward!"
                           }
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
                             <span className={freeSurveyCompleted ? "text-gray-600" : "text-green-600 font-semibold"}>Ksh 25</span>
@@ -530,27 +530,28 @@ const Dashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-2 ml-4">
-                        <Button 
-                          onClick={() => {
-                            if (freeSurveyCompleted) {
-                              toast({
-                                title: "Survey Completed",
-                                description: "You have already completed this survey. Each user can only complete it once.",
-                              });
-                            } else {
-                              setShowFreeSurvey(true);
-                            }
-                          }}
-                          className={freeSurveyCompleted 
-                            ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed" 
-                            : "bg-green-600 hover:bg-green-700"
-                          }
-                          disabled={freeSurveyCompleted}
-                        >
-                          {freeSurveyCompleted ? "Done" : "Start Survey"}
-                        </Button>
-                      </div>
+                       <div className="flex flex-col gap-2 flex-shrink-0">
+                         <Button 
+                           onClick={() => {
+                             if (freeSurveyCompleted) {
+                               toast({
+                                 title: "Survey Completed",
+                                 description: "You have already completed this survey. Each user can only complete it once.",
+                               });
+                             } else {
+                               setShowFreeSurvey(true);
+                             }
+                           }}
+                           className={freeSurveyCompleted 
+                             ? "bg-gray-400 hover:bg-gray-500 cursor-not-allowed w-full sm:w-auto" 
+                             : "bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+                           }
+                           disabled={freeSurveyCompleted}
+                           size="sm"
+                         >
+                           {freeSurveyCompleted ? "Done" : "Start Survey"}
+                         </Button>
+                       </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -573,51 +574,52 @@ const Dashboard = () => {
                           </div>
                         </div>
                       )}
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-lg">{survey.title}</h3>
-                              {survey.reward > 50 && (
-                                <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0">
-                                  Premium
-                                </Badge>
-                              )}
-                              {survey.category && (
-                                <Badge variant="secondary">{survey.category}</Badge>
-                              )}
-                            </div>
-                            <p className="text-muted-foreground mb-4">{survey.description}</p>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <DollarSign className="w-4 h-4" />
-                                <span className={survey.reward > 50 ? "text-yellow-600 font-semibold" : ""}>
-                                  Ksh {survey.reward}
-                                </span>
-                              </div>
-                               {survey.duration_minutes && (
-                                 <div className="flex items-center gap-1">
-                                   <Clock className="w-4 h-4" />
-                                   <span>{survey.duration_minutes} mins</span>
-                                 </div>
+                       <CardContent className="p-4 sm:p-6">
+                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                           <div className="flex-1 min-w-0">
+                             <div className="flex flex-wrap items-center gap-2 mb-2">
+                               <h3 className="font-semibold text-lg">{survey.title}</h3>
+                               {survey.reward > 50 && (
+                                 <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0 text-xs">
+                                   Premium
+                                 </Badge>
+                               )}
+                               {survey.category && (
+                                 <Badge variant="secondary" className="text-xs">{survey.category}</Badge>
                                )}
                              </div>
-                           </div>
-                          <Button 
-                            onClick={() => startSurvey(survey)}
-                            className={`ml-4 ${survey.reward > 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700' : ''}`}
-                          >
-                            {survey.reward > 50 ? (
-                              <>
-                                <Crown className="w-4 h-4 mr-2" />
-                                Premium
-                              </>
-                            ) : (
-                              "Start Survey"
-                            )}
-                          </Button>
-                        </div>
-                      </CardContent>
+                             <p className="text-muted-foreground mb-4 text-sm">{survey.description}</p>
+                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                               <div className="flex items-center gap-1">
+                                 <DollarSign className="w-4 h-4" />
+                                 <span className={survey.reward > 50 ? "text-yellow-600 font-semibold" : ""}>
+                                   Ksh {survey.reward}
+                                 </span>
+                               </div>
+                                {survey.duration_minutes && (
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    <span>{survey.duration_minutes} mins</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                           <Button 
+                             onClick={() => startSurvey(survey)}
+                             className={`w-full sm:w-auto sm:ml-4 flex-shrink-0 ${survey.reward > 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700' : ''}`}
+                             size="sm"
+                           >
+                             {survey.reward > 50 ? (
+                               <>
+                                 <Crown className="w-4 h-4 mr-2" />
+                                 Premium
+                               </>
+                             ) : (
+                               "Start Survey"
+                             )}
+                           </Button>
+                         </div>
+                       </CardContent>
                     </Card>
                   ))}
                 </div>
