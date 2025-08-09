@@ -761,7 +761,7 @@ const Dashboard = () => {
                       <Wallet className="w-4 h-4 mr-2" />
                       Wallet
                     </Button>
-                    <Button onClick={() => setPaymentModalOpen(true)}>
+                    <Button onClick={() => setPaymentModalOpen(true)} size="sm">
                       <CreditCard className="w-4 h-4 mr-2" />
                       {paymentMethods.length > 0 ? "Update Payment Method" : "Add Payment Method"}
                     </Button>
