@@ -702,7 +702,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
-            <div>
+            <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl font-bold mb-4">Profile Settings</h2>
               <Card className="border-border/50 shadow-elegant">
                 <CardHeader>
@@ -721,7 +721,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <label className="text-sm font-medium">Email</label>
-                    <p className="text-lg">{profile?.email || "Not set"}</p>
+                    <p className="text-lg break-all">{profile?.email || "Not set"}</p>
                   </div>
                   
                   {/* Payment Methods Section */}
@@ -730,7 +730,7 @@ const Dashboard = () => {
                     {paymentMethods.length > 0 ? (
                       <div className="mt-2 space-y-2">
                         {paymentMethods.map((method) => (
-                          <div key={method.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div key={method.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium capitalize">{method.method_type}</span>
@@ -738,7 +738,7 @@ const Dashboard = () => {
                                   <Badge variant="secondary" className="text-xs">Default</Badge>
                                 )}
                               </div>
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-sm text-muted-foreground break-all">
                                 {method.method_type === 'mpesa' && `••••${method.details.phone?.slice(-4) || ''}`}
                                 {method.method_type === 'bank_transfer' && `${method.details.bank_name || ''} ••••${method.details.account_number?.slice(-4) || ''}`}
                                 {method.method_type === 'paypal' && method.details.email}
@@ -753,15 +753,16 @@ const Dashboard = () => {
                     )}
                   </div>
                   
-                  <div className="flex gap-3 mt-6">
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
                     <Button 
                       onClick={() => setWalletModalOpen(true)}
                       variant="outline"
+                      className="w-full sm:w-auto"
                     >
                       <Wallet className="w-4 h-4 mr-2" />
                       Wallet
                     </Button>
-                    <Button onClick={() => setPaymentModalOpen(true)} size="sm">
+                    <Button onClick={() => setPaymentModalOpen(true)} size="sm" className="w-full sm:w-auto">
                       <CreditCard className="w-4 h-4 mr-2" />
                       {paymentMethods.length > 0 ? "Update Payment Method" : "Add Payment Method"}
                     </Button>

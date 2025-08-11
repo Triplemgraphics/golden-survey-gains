@@ -31,8 +31,8 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const paybillNumber = "12345"; // Replace with actual paybill
-  const accountNumber = "survey-africa"; // Replace with actual account
+  const tillNumber = "6735300";
+  const businessName = "Utheri technologies";
 
   useEffect(() => {
     if (isOpen) {
@@ -45,7 +45,7 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
       const { data, error } = await supabase
         .from('subscription_plans')
         .select('*')
-        .order('price', { ascending: true });
+        .order('price', { ascending: false });
 
       if (error) throw error;
       
@@ -227,9 +227,8 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
                   <ol className="list-decimal list-inside space-y-2 text-sm">
                     <li>Go to M-Pesa on your phone</li>
                     <li>Select "Lipa na M-Pesa"</li>
-                    <li>Select "Pay Bill"</li>
-                    <li>Enter the business number below</li>
-                    <li>Enter the account number below</li>
+                    <li>Select "Buy Goods and Services"</li>
+                    <li>Enter the till number below</li>
                     <li>Enter the amount: Ksh {selectedPlan.price}</li>
                     <li>Enter your M-Pesa PIN</li>
                     <li>Copy the confirmation code and paste it below</li>
@@ -238,26 +237,26 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Business Number (Paybill)</Label>
+                    <Label>Till Number</Label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Input value={paybillNumber} readOnly />
+                      <Input value={tillNumber} readOnly />
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => copyToClipboard(paybillNumber)}
+                        onClick={() => copyToClipboard(tillNumber)}
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                   <div>
-                    <Label>Account Number</Label>
+                    <Label>Business Name</Label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Input value={accountNumber} readOnly />
+                      <Input value={businessName} readOnly />
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => copyToClipboard(accountNumber)}
+                        onClick={() => copyToClipboard(businessName)}
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
