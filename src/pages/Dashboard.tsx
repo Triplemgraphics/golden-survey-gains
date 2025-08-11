@@ -781,6 +781,7 @@ const Dashboard = () => {
           onClose={() => setPremiumModalOpen(false)}
           survey={selectedSurvey}
           userCredits={profile?.credits || 0}
+          userId={user.id}
         />
       )}
 

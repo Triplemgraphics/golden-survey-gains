@@ -226,7 +226,6 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
                   <h4 className="font-semibold">Follow these steps:</h4>
                   <ol className="list-decimal list-inside space-y-2 text-sm">
                     <li>Go to M-Pesa on your phone</li>
-                    <li>Select "Lipa na M-Pesa"</li>
                     <li>Select "Buy Goods and Services"</li>
                     <li>Enter the till number below</li>
                     <li>Enter the amount: Ksh {selectedPlan.price}</li>
