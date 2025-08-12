@@ -231,28 +231,64 @@ const Dashboard = () => {
       return;
     }
 
-    // Check daily limits
-    const maxDaily = subscription ? subscription.daily_survey_limit : 1;
-    if (dailySurveyCount >= maxDaily) {
-      toast({
-        title: "Daily Limit Reached",
-        description: `You've reached your daily limit of ${maxDaily} surveys. ${!subscription ? 'Upgrade to premium for more surveys!' : 'Try again tomorrow.'}`,
-        variant: "destructive",
+    // Check if user can access this survey using the database function
+    try {
+      const { data: canAccess, error } = await supabase.rpc('can_access_survey', {
+        user_id_param: user?.id,
+        survey_id_param: survey.id,
+        survey_reward: survey.reward
       });
-      if (!subscription) {
-        setSubscriptionModalOpen(true);
-      }
-      return;
-    }
 
-    // Check if free user trying to access premium survey
-    if (!subscription && survey.reward >= 50) {
+      if (error) {
+        console.error('Error checking survey access:', error);
+        toast({
+          title: "Error",
+          description: "Failed to check survey access. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!canAccess) {
+        // Determine the appropriate message based on survey type
+        if (survey.title === 'Free Demographics Survey') {
+          toast({
+            title: "Survey Already Completed",
+            description: "You have already completed the mandatory demographics survey.",
+            variant: "destructive",
+          });
+        } else if (survey.reward < 50) {
+          toast({
+            title: "Daily Limit Reached",
+            description: "You can only complete one survey under KSh 50 per day. Try again tomorrow.",
+            variant: "destructive",
+          });
+        } else {
+          // Premium survey - check if it's due to subscription or daily limit
+          if (!subscription) {
+            toast({
+              title: "Premium Survey",
+              description: "This survey requires a premium subscription. Upgrade to access high-reward surveys!",
+              variant: "destructive",
+            });
+            setSubscriptionModalOpen(true);
+          } else {
+            toast({
+              title: "Daily Limit Reached",
+              description: "You've reached your daily survey limit. Try again tomorrow.",
+              variant: "destructive",
+            });
+          }
+        }
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking survey access:', error);
       toast({
-        title: "Premium Survey",
-        description: "This survey requires a premium subscription. Upgrade to access high-reward surveys!",
+        title: "Error",
+        description: "Failed to check survey access. Please try again.",
         variant: "destructive",
       });
-      setSubscriptionModalOpen(true);
       return;
     }
     
