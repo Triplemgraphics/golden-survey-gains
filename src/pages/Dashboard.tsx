@@ -231,6 +231,12 @@ const Dashboard = () => {
       return;
     }
 
+    // Check if it's the free demographics survey
+    if (survey.title === "Free Demographics Survey") {
+      setShowFreeSurvey(true);
+      return;
+    }
+
     // Check if user can access this survey using the database function
     try {
       const { data: canAccess, error } = await supabase.rpc('can_access_survey', {
@@ -306,10 +312,11 @@ const Dashboard = () => {
         await fetchDailySurveyCount(user.id);
       }
       
-      toast({
-        title: "Survey Started",
-        description: "Survey functionality will be available soon!",
-      });
+      // Navigate to a generic survey page or open survey modal
+      // For now, we'll open the premium survey modal as a placeholder
+      setSelectedSurvey(survey);
+      setPremiumModalOpen(true);
+      
     } catch (error) {
       console.error('Error recording survey access:', error);
       toast({
