@@ -93,6 +93,7 @@ const Dashboard = () => {
 
   const checkUser = async () => {
     try {
+      setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -106,18 +107,6 @@ const Dashboard = () => {
       await fetchDailySurveyCount(session.user.id);
       await fetchPaymentMethods(session.user.id);
       
-      // Check if free survey is completed
-      const { data: freeSurveyData } = await supabase
-        .from("survey_responses")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .eq("survey_id", "00000000-0000-0000-0000-000000000001")
-        .maybeSingle();
-      
-      if (freeSurveyData) {
-        setFreeSurveyCompleted(true);
-      }
-      
       // Check if user needs to take test survey first
       const { data: profileData } = await supabase
         .from("profiles")
@@ -128,6 +117,21 @@ const Dashboard = () => {
       if (!profileData?.test_survey_completed) {
         navigate("/test-survey");
         return;
+      }
+
+      // Check if free demographics survey is completed
+      const { data: freeSurveyData } = await supabase
+        .from("survey_responses")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .eq("survey_id", "00000000-0000-0000-0000-000000000001")
+        .maybeSingle();
+      
+      if (freeSurveyData) {
+        setFreeSurveyCompleted(true);
+      } else {
+        // If mandatory free demographics survey not completed, show it immediately
+        setShowFreeSurvey(true);
       }
 
       await fetchSurveys();
@@ -163,7 +167,16 @@ const Dashboard = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setSurveys(data || []);
+      
+      // Filter out the free demographics survey if user has completed it
+      const filteredSurveys = data?.filter(survey => {
+        if (survey.title === "Free Demographics Survey") {
+          return false; // Never show this in the regular survey list as it's handled separately
+        }
+        return true;
+      }) || [];
+      
+      setSurveys(filteredSurveys);
     } catch (error) {
       console.error("Error fetching surveys:", error);
     }
