@@ -350,6 +350,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_survey: {
+        Args: {
+          user_id_param: string
+          survey_id_param: string
+          survey_reward: number
+        }
+        Returns: boolean
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
