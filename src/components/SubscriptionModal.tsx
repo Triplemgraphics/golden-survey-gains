@@ -236,7 +236,7 @@ const SubscriptionModal = ({ isOpen, onClose, userId }: SubscriptionModalProps) 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Till Number</Label>
+                    <Label>Till Number (Buy Goods)</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input value={tillNumber} readOnly />
                       <Button 
