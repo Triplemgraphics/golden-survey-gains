@@ -23,7 +23,9 @@ import {
   Settings,
   Check,
   X,
-  Clock
+  Clock,
+  Wallet,
+  CreditCard
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -67,11 +69,27 @@ interface PendingSubscription {
   email: string | null;
 }
 
+interface PendingPayment {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  total_pending: number;
+  earnings_count: number;
+  earnings: Array<{
+    id: string;
+    amount: number;
+    survey_id: string;
+    created_at: string;
+  }>;
+}
+
 const AdminDashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [pendingSubscriptions, setPendingSubscriptions] = useState<PendingSubscription[]>([]);
+  const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -118,6 +136,7 @@ const AdminDashboard = () => {
       await fetchProfile(session.user.id);
       await fetchSurveys();
       await fetchPendingSubscriptions();
+      await fetchPendingPayments();
     } catch (error) {
       console.error("Error checking admin:", error);
       navigate("/auth");
@@ -207,6 +226,120 @@ const AdminDashboard = () => {
       setPendingSubscriptions(formatted);
     } catch (error) {
       console.error("Error fetching pending subscriptions:", error);
+    }
+  };
+
+  const fetchPendingPayments = async () => {
+    try {
+      // Get all pending earnings with user details
+      const { data: earningsData, error } = await supabase
+        .from('earnings')
+        .select(`
+          id,
+          user_id,
+          survey_id,
+          amount,
+          created_at,
+          profiles!inner (
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by user
+      const groupedPayments: { [key: string]: PendingPayment } = {};
+      
+      earningsData?.forEach((earning: any) => {
+        const userId = earning.user_id;
+        if (!groupedPayments[userId]) {
+          groupedPayments[userId] = {
+            user_id: userId,
+            first_name: earning.profiles.first_name,
+            last_name: earning.profiles.last_name,
+            email: earning.profiles.email,
+            total_pending: 0,
+            earnings_count: 0,
+            earnings: []
+          };
+        }
+        
+        groupedPayments[userId].total_pending += Number(earning.amount);
+        groupedPayments[userId].earnings_count += 1;
+        groupedPayments[userId].earnings.push({
+          id: earning.id,
+          amount: Number(earning.amount),
+          survey_id: earning.survey_id,
+          created_at: earning.created_at
+        });
+      });
+
+      setPendingPayments(Object.values(groupedPayments));
+    } catch (error) {
+      console.error("Error fetching pending payments:", error);
+    }
+  };
+
+  const handleMarkAsPaid = async (userId: string) => {
+    try {
+      const now = new Date().toISOString();
+      
+      // Update all pending earnings for this user to paid
+      const { error: earningsError } = await supabase
+        .from('earnings')
+        .update({
+          status: 'paid',
+          paid_at: now
+        })
+        .eq('user_id', userId)
+        .eq('status', 'pending');
+
+      if (earningsError) throw earningsError;
+
+      // Get the user's current profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('total_earnings')
+        .eq('user_id', userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Calculate total pending amount for this user
+      const userPayment = pendingPayments.find(p => p.user_id === userId);
+      if (!userPayment) return;
+
+      // Update user's total earnings and reset credits
+      const newTotalEarnings = (Number(profileData.total_earnings) || 0) + userPayment.total_pending;
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          total_earnings: newTotalEarnings,
+          credits: 0 // Reset current earnings
+        })
+        .eq('user_id', userId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: `Payment processed successfully. User earnings updated.`,
+      });
+
+      // Refresh the data
+      await fetchPendingPayments();
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process payment",
+        variant: "destructive",
+      });
     }
   };
 
@@ -515,9 +648,10 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="surveys" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="surveys">Survey Management</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscription Requests ({pendingSubscriptions.length})</TabsTrigger>
+            <TabsTrigger value="payments">Payment Management ({pendingPayments.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="surveys" className="space-y-6">
@@ -675,6 +809,82 @@ const AdminDashboard = () => {
               </Card>
             ))}
           </div>
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Payment Management</h2>
+              {pendingPayments.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Wallet className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No pending payments</h3>
+                    <p className="text-muted-foreground">All user payments have been processed.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {pendingPayments.map((payment) => (
+                    <Card key={payment.user_id} className="border-border/50 shadow-elegant">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-lg">
+                                {payment.first_name} {payment.last_name}
+                              </h3>
+                              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                                {payment.earnings_count} Pending Surveys
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{payment.email}</p>
+                            <div className="text-2xl font-bold text-green-600 mb-2">
+                              Ksh {payment.total_pending.toFixed(2)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Total pending earnings from {payment.earnings_count} completed surveys
+                            </p>
+                            <div className="mt-3 text-xs text-muted-foreground">
+                              Latest earning: {new Date(payment.earnings[0]?.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              onClick={() => handleMarkAsPaid(payment.user_id)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              Mark as Paid
+                            </Button>
+                            <div className="text-xs text-center text-muted-foreground">
+                              Will reset user credits
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Earnings breakdown */}
+                        <div className="mt-4 pt-4 border-t border-border/50">
+                          <p className="text-sm font-medium mb-2">Recent Earnings:</p>
+                          <div className="grid gap-1">
+                            {payment.earnings.slice(0, 3).map((earning) => (
+                              <div key={earning.id} className="flex justify-between text-xs text-muted-foreground">
+                                <span>Survey completion</span>
+                                <span>Ksh {earning.amount.toFixed(2)}</span>
+                              </div>
+                            ))}
+                            {payment.earnings.length > 3 && (
+                              <div className="text-xs text-muted-foreground">
+                                +{payment.earnings.length - 3} more earnings...
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="subscriptions" className="space-y-6">
