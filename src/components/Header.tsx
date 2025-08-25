@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X, Star, Crown } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,10 +55,10 @@ const Header = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Button variant="ghost" className="font-medium" asChild>
-              <a href="#contact">Sign In</a>
+              <Link to="/auth">Sign In</Link>
             </Button>
-            <Button variant="default" className="font-medium" onClick={scrollToContact}>
-              Get Started
+            <Button variant="default" className="font-medium" asChild>
+              <Link to="/auth">Get Started</Link>
             </Button>
           </div>
 
@@ -90,10 +91,10 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-border space-y-3">
                 <Button variant="ghost" className="w-full justify-start" asChild>
-                  <a href="#contact">Sign In</a>
+                  <Link to="/auth">Sign In</Link>
                 </Button>
-                <Button variant="default" className="w-full" onClick={scrollToContact}>
-                  Get Started
+                <Button variant="default" className="w-full" asChild>
+                  <Link to="/auth">Get Started</Link>
                 </Button>
               </div>
             </nav>
