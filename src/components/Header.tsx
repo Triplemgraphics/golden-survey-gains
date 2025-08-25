@@ -7,12 +7,16 @@ const Header = () => {
 
   const navItems = [
     { name: "Home", href: "#home" },
-    { name: "About", href: "/about" },
+    { name: "About", href: "#about" },
     { name: "Features", href: "#features" },
     { name: "Testimonials", href: "#testimonials" },
     { name: "FAQ", href: "#faq" },
     { name: "Contact", href: "#contact" }
   ];
+
+  const scrollToContact = () => {
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
@@ -50,10 +54,10 @@ const Header = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Button variant="ghost" className="font-medium" asChild>
-              <a href="/auth">Sign In</a>
+              <a href="#contact">Sign In</a>
             </Button>
-            <Button variant="default" className="font-medium" asChild>
-              <a href="/auth">Get Started</a>
+            <Button variant="default" className="font-medium" onClick={scrollToContact}>
+              Get Started
             </Button>
           </div>
 
@@ -86,10 +90,10 @@ const Header = () => {
               ))}
               <div className="pt-4 border-t border-border space-y-3">
                 <Button variant="ghost" className="w-full justify-start" asChild>
-                  <a href="/auth">Sign In</a>
+                  <a href="#contact">Sign In</a>
                 </Button>
-                <Button variant="default" className="w-full" asChild>
-                  <a href="/auth">Get Started</a>
+                <Button variant="default" className="w-full" onClick={scrollToContact}>
+                  Get Started
                 </Button>
               </div>
             </nav>
