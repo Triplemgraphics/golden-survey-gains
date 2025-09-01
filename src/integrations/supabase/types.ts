@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_logins: {
+        Row: {
+          bonus_credits: number | null
+          created_at: string | null
+          id: string
+          login_date: string
+          user_id: string
+        }
+        Insert: {
+          bonus_credits?: number | null
+          created_at?: string | null
+          id?: string
+          login_date?: string
+          user_id: string
+        }
+        Update: {
+          bonus_credits?: number | null
+          created_at?: string | null
+          id?: string
+          login_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_survey_access: {
         Row: {
           access_date: string
@@ -83,6 +107,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      extra_survey_unlocks: {
+        Row: {
+          created_at: string | null
+          credits_used: number | null
+          id: string
+          surveys_unlocked: number | null
+          unlock_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_used?: number | null
+          id?: string
+          surveys_unlocked?: number | null
+          unlock_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_used?: number | null
+          id?: string
+          surveys_unlocked?: number | null
+          unlock_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       payment_methods: {
         Row: {
@@ -384,6 +435,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -414,12 +495,20 @@ export type Database = {
           status: string
         }[]
       }
+      handle_daily_login: {
+        Args: { user_id_param: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      unlock_extra_survey: {
+        Args: { user_id_param: string }
+        Returns: Json
       }
     }
     Enums: {
