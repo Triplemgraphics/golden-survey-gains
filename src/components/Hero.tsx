@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Users, Shield, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -52,13 +53,12 @@ const Hero = () => {
             <span className="text-muted-foreground font-medium">4.9/5 from 2,500+ reviews</span>
           </div>
 
-          {/* CTA Buttons */}
           <div className="flex justify-center">
             <Button variant="hero" size="xl" className="group" asChild>
-              <a href="/auth">
+              <Link to="/auth">
                 Get Started Now
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </Button>
           </div>
 
