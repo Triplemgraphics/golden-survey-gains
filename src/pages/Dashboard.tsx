@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +15,6 @@ import WalletComponent from "@/components/Wallet";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { DailyLoginBonus } from "@/components/DailyLoginBonus";
 import { ExtraSurveyUnlock } from "@/components/ExtraSurveyUnlock";
-import { Leaderboard } from "@/components/Leaderboard";
 import type { User } from "@supabase/supabase-js";
 
 interface Profile {
@@ -70,7 +70,7 @@ const Dashboard = () => {
       }
 
       setUser(session.user);
-      await fetchProfile();
+      await fetchProfile(session.user);
     } catch (error) {
       console.error("Error checking user:", error);
       navigate("/auth");
@@ -79,14 +79,14 @@ const Dashboard = () => {
     }
   };
 
-  const fetchProfile = async () => {
-    if (!user) return;
+  const fetchProfile = async (currentUser: User) => {
+    if (!currentUser) return;
     
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .single();
 
       if (error) throw error;
@@ -102,7 +102,7 @@ const Dashboard = () => {
       const { data: freeSurveyData } = await supabase
         .from("survey_responses")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .eq("survey_id", "00000000-0000-0000-0000-000000000001")
         .maybeSingle();
       
@@ -111,7 +111,7 @@ const Dashboard = () => {
       }
 
       await fetchSurveys();
-      await fetchTodayStats();
+      await fetchTodayStats(currentUser);
     } catch (error) {
       console.error("Error fetching profile:", error);
     }
@@ -132,15 +132,15 @@ const Dashboard = () => {
     }
   };
 
-  const fetchTodayStats = async () => {
-    if (!user) return;
+  const fetchTodayStats = async (currentUser: User) => {
+    if (!currentUser) return;
 
     try {
       // Get today's earnings
       const { data: todayEarningsData } = await supabase
         .from("earnings")
         .select("amount")
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .gte("created_at", new Date().toISOString().split('T')[0]);
 
       const totalToday = todayEarningsData?.reduce((sum, earning) => sum + Number(earning.amount), 0) || 0;
@@ -150,7 +150,7 @@ const Dashboard = () => {
       const { data: todaySurveys } = await supabase
         .from("survey_responses")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .gte("completed_at", new Date().toISOString().split('T')[0]);
 
       setDailySurveysCompleted(todaySurveys?.length || 0);
@@ -212,6 +212,16 @@ const Dashboard = () => {
     }
   };
 
+  const copyReferralCode = () => {
+    if (profile?.referral_code) {
+      navigator.clipboard.writeText(profile.referral_code);
+      toast({
+        title: "Copied!",
+        description: "Referral code copied to clipboard",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -228,7 +238,7 @@ const Dashboard = () => {
         <TestSurvey 
           onComplete={(score) => {
             setShowTestSurvey(false);
-            fetchProfile();
+            fetchProfile(user!);
             toast({
               title: "Test Complete!",
               description: `You scored ${score}%. Welcome to Survey Africa!`,
@@ -236,7 +246,7 @@ const Dashboard = () => {
           }}
           onSkip={() => {
             setShowTestSurvey(false);
-            fetchProfile();
+            fetchProfile(user!);
           }}
         />
       </div>
@@ -249,7 +259,7 @@ const Dashboard = () => {
         <FreeSurvey 
           onComplete={() => {
             setShowFreeSurvey(false);
-            fetchProfile();
+            fetchProfile(user!);
           }}
           onBack={() => setShowFreeSurvey(false)}
           userId={user?.id || ""}
@@ -280,20 +290,68 @@ const Dashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+        <Tabs defaultValue="surveys" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="surveys">Surveys</TabsTrigger>
-            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Daily Login Bonus */}
-            {user && (
-              <DailyLoginBonus userId={user.id} />
+          {/* Daily Login Bonus */}
+          {user && (
+            <DailyLoginBonus userId={user.id} />
+          )}
+
+          <TabsContent value="surveys" className="space-y-6">
+            {/* Extra Survey Unlock */}
+            {user && profile && (
+              <ExtraSurveyUnlock 
+                userId={user.id} 
+                userCredits={profile.credits || 0}
+                onUnlockSuccess={() => fetchProfile(user)}
+              />
             )}
 
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
+              <div className="grid gap-4">
+                {surveys.map((survey) => (
+                  <Card key={survey.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>{survey.title}</CardTitle>
+                        {survey.reward >= 50 && (
+                          <Badge variant="secondary">Premium</Badge>
+                        )}
+                      </div>
+                      <CardDescription>{survey.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            <span>KES {survey.reward}</span>
+                          </div>
+                          {survey.duration_minutes && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              <span>{survey.duration_minutes} mins</span>
+                            </div>
+                          )}
+                        </div>
+                        <Button onClick={() => startSurvey(survey)}>
+                          Start Survey
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -347,59 +405,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Extra Survey Unlock */}
-            {user && profile && (
-              <ExtraSurveyUnlock 
-                userId={user.id} 
-                userCredits={profile.credits || 0}
-                onUnlockSuccess={() => fetchProfile()}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="surveys" className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
-              <div className="grid gap-4">
-                {surveys.map((survey) => (
-                  <Card key={survey.id}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>{survey.title}</CardTitle>
-                        {survey.reward >= 50 && (
-                          <Badge variant="secondary">Premium</Badge>
-                        )}
-                      </div>
-                      <CardDescription>{survey.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span>KES {survey.reward}</span>
-                          </div>
-                          {survey.duration_minutes && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <span>{survey.duration_minutes} mins</span>
-                            </div>
-                          )}
-                        </div>
-                        <Button onClick={() => startSurvey(survey)}>
-                          Start Survey
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="leaderboard" className="space-y-4">
-            <Leaderboard />
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-6">
@@ -418,7 +423,21 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Referral Code</label>
-                  <p className="text-lg font-mono">{profile?.referral_code}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-lg font-mono bg-muted px-3 py-2 rounded">{profile?.referral_code}</p>
+                    <Button variant="outline" size="sm" onClick={copyReferralCode}>
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Share this code to earn 5 credits per referral
+                  </p>
+                </div>
+                <div className="pt-4">
+                  <Button onClick={() => setWalletModalOpen(true)}>
+                    <Wallet className="w-4 h-4 mr-2" />
+                    View Wallet
+                  </Button>
                 </div>
               </CardContent>
             </Card>
