@@ -130,7 +130,7 @@ export const SurveyCreator = () => {
           category: surveyData.category,
           reward: surveyData.reward,
           duration_minutes: surveyData.duration_minutes,
-          questions: surveyData.questions,
+          questions: surveyData.questions as any,
           status: 'active'
         });
 

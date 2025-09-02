@@ -15,6 +15,7 @@ import WalletComponent from "@/components/Wallet";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { DailyLoginBonus } from "@/components/DailyLoginBonus";
 import { ExtraSurveyUnlock } from "@/components/ExtraSurveyUnlock";
+import { SurveyList } from "@/components/SurveyList";
 import type { User } from "@supabase/supabase-js";
 
 interface Profile {
@@ -312,43 +313,14 @@ const Dashboard = () => {
               />
             )}
 
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Available Surveys</h2>
-              <div className="grid gap-4">
-                {surveys.map((survey) => (
-                  <Card key={survey.id}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle>{survey.title}</CardTitle>
-                        {survey.reward >= 50 && (
-                          <Badge variant="secondary">Premium</Badge>
-                        )}
-                      </div>
-                      <CardDescription>{survey.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span>KES {survey.reward}</span>
-                          </div>
-                          {survey.duration_minutes && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <span>{survey.duration_minutes} mins</span>
-                            </div>
-                          )}
-                        </div>
-                        <Button onClick={() => startSurvey(survey)}>
-                          Start Survey
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            {/* Survey List */}
+            {user && profile && (
+              <SurveyList 
+                userId={user.id}
+                userCredits={profile.credits || 0}
+                onSurveyStart={startSurvey}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
