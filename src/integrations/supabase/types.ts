@@ -177,6 +177,7 @@ export type Database = {
           phone: string | null
           referral_code: string | null
           referred_by: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
           surveys_completed: number | null
           test_survey_completed: boolean | null
           total_earnings: number | null
@@ -194,6 +195,7 @@ export type Database = {
           phone?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
           surveys_completed?: number | null
           test_survey_completed?: boolean | null
           total_earnings?: number | null
@@ -211,6 +213,7 @@ export type Database = {
           phone?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
           surveys_completed?: number | null
           test_survey_completed?: boolean | null
           total_earnings?: number | null
@@ -478,6 +481,30 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_expired_subscriptions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      complete_survey: {
+        Args: { p_responses: Json; p_survey_id: string; p_user_id: string }
+        Returns: {
+          earnings_amount: number
+          message: string
+          success: boolean
+        }[]
+      }
+      create_subscription: {
+        Args: {
+          p_payment_method_id?: string
+          p_plan_id: string
+          p_user_id: string
+        }
+        Returns: {
+          message: string
+          subscription_id: string
+          success: boolean
+        }[]
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -509,6 +536,14 @@ export type Database = {
       unlock_extra_survey: {
         Args: { user_id_param: string }
         Returns: Json
+      }
+      update_earnings_status: {
+        Args: {
+          p_admin_notes?: string
+          p_earnings_id: string
+          p_new_status: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
