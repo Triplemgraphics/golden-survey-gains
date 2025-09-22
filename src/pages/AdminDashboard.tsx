@@ -11,6 +11,8 @@ import { Users, FileText, DollarSign, TrendingUp, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SurveyCreator } from "@/components/SurveyCreator";
 import { Leaderboard } from "@/components/Leaderboard";
+import { PaymentManagement } from "@/components/admin/PaymentManagement";
+import { UserManagement } from "@/components/admin/UserManagement";
 import type { User } from "@supabase/supabase-js";
 
 interface AdminStats {
@@ -182,10 +184,11 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="surveys">Create Survey</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -309,40 +312,11 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Manage registered users</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Earnings</TableHead>
-                      <TableHead>Surveys</TableHead>
-                      <TableHead>Joined</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          {user.first_name} {user.last_name}
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>KES {user.total_earnings}</TableCell>
-                        <TableCell>{user.surveys_completed}</TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-4">
+            <PaymentManagement />
           </TabsContent>
 
           <TabsContent value="leaderboard">
