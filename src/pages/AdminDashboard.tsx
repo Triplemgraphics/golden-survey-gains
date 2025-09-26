@@ -13,6 +13,7 @@ import { SurveyCreator } from "@/components/SurveyCreator";
 import { Leaderboard } from "@/components/Leaderboard";
 import { PaymentManagement } from "@/components/admin/PaymentManagement";
 import { UserManagement } from "@/components/admin/UserManagement";
+import { SurveyManagement } from "@/components/admin/SurveyManagement";
 import type { User } from "@supabase/supabase-js";
 
 interface AdminStats {
@@ -184,9 +185,10 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="surveys">Create Survey</TabsTrigger>
+            <TabsTrigger value="manage-surveys">Manage Surveys</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
@@ -309,6 +311,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="surveys">
             <SurveyCreator />
+          </TabsContent>
+
+          <TabsContent value="manage-surveys">
+            <SurveyManagement />
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
